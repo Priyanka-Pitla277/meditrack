@@ -1,0 +1,4 @@
+id,name,specialization,yearsOfExperience,licenseNumber,consultationAmount,gender,email,phoneNo,age
+DOC-101,Dr. Venkat Raman,CARDIOLOGY,12,MC-99281-A,1200.00,Male,Venkat@gmail.com,76716621736,45
+DOC-102,Dr. Ananya Reddy,DERMATOLOGY,8,MC-44123-B,1000.00,Female,Ananya@gmail.com,3612531,33
+DOC-103,Dr. Rahul Sharma,NEUROLOGY,15,MC-11559-C,1500.00,Male,Rahul@gmail.com,7382381323,60                                                                                                                                                                                                                                                    

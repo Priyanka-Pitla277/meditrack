@@ -1,0 +1,4 @@
+name,age,gender,insuranceProvider,email,phoneNo,notificationType
+arun,34,Male,CARE,arun@gmail.com,12767267,SMS
+ananya,28,Female,STAR,ananya@gmail.com,627162716,EMAIL
+rahul,45,Male,APOLLO,rahul@gmail.com,4872847328,SMS
