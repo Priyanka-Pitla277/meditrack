@@ -10,7 +10,6 @@ This document briefly explains how a Java "Hello World" program runs.
 
 The process starts with a `HelloWorld.java` file.
 
-![HelloWorld.png](../../../../../images/HelloWorld.png)
 
 ```java
 public class HelloWorld {
@@ -22,7 +21,7 @@ public class HelloWorld {
 # MediTrack Interactive Menu — Comprehensive Test Execution Guide
 
 This document provides a step-by-step test script to validate the console-driven user interface and business logic of the **MediTrack** application.
-
+![alt text](class_diagram.png)
 ---
 
 ## 🛠️ Setup, Compilation, and Launch
