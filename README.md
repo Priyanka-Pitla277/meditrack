@@ -47,7 +47,7 @@ The system is organized into decoupled layers to maintain a clean separation of 
 * **`com.airtribe.meditrack.service`**: 
   * `DoctorService` & `PatientService`: Handles validations and orchestrates base domain access.
   * `AppointmentManagerService`: Processes the core business transactions, searching pipelines, scheduling slots, and safe status transitions.
-* **`com.airtribe.meditrack.util`**: Centralized exception handling blocks and parameter objects (`DoctorSearchCriteria`, `Validator`).
+* **`com.airtribe.meditrack.util`**: Centralized exception handling blocks and parameter objects.
 
 ---
 
