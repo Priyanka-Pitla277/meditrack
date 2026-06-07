@@ -18,6 +18,7 @@ public class PatientRepository {
 
     public void updatePatient(String id, Patient updatedPatient) {
         patientStore.update(id, updatedPatient);
+        System.out.println("patient data updated successfully: "+updatedPatient);
     }
 
     public void removePatient(String id) {

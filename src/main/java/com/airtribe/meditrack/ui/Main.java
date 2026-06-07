@@ -15,8 +15,10 @@ import com.airtribe.meditrack.entity.Patient;
 import com.airtribe.meditrack.enums.AppointmentStatus;
 import com.airtribe.meditrack.enums.NotifcationType;
 import com.airtribe.meditrack.enums.Specialization;
+import com.airtribe.meditrack.exception.InvalidInputException;
 import com.airtribe.meditrack.interfaces.Searchable;
 import com.airtribe.meditrack.search.service.DoctorDynamicSearchService;
+import com.airtribe.meditrack.search.service.RecommendationEngine;
 import com.airtribe.meditrack.service.AppointmentManagerService;
 import com.airtribe.meditrack.service.DoctorService;
 import com.airtribe.meditrack.service.PatientService;
@@ -26,6 +28,8 @@ import com.airtribe.meditrack.util.IdGenerator;
 import com.airtribe.meditrack.util.Validator;
 
 public class Main {
+
+
 	public static void main(String[] args) {
 		loadData(args);
 		Scanner scanner = new Scanner(System.in);
@@ -40,7 +44,7 @@ public class Main {
 				DoctorService doctorService = new DoctorService();
 				AppointmentManagerService appService = new AppointmentManagerService();
 				Searchable searchService = new  DoctorDynamicSearchService();
-
+				RecommendationEngine recommendationEngine = new RecommendationEngine(appService);
 				switch (choice) {
 				case 1:
 					getAllDoctors(doctorService);
@@ -90,25 +94,34 @@ public class Main {
 				case 16:
 					doctorDynamicSearch(scanner, searchService);
 					break;
+				case 17:
+					recommendationSlotsBaedOnSymptom(scanner, recommendationEngine);
+					break;	
 				case 0:
 					keepRunning = false;
 					System.out.println("Exiting the interactive menu window.");
 					break;
 
 				default:
-					Validator.invalidInput();
+					Validator.invalidInput(new InvalidInputException(Constants.INVALID_SELECTION_TRY_AGAIN));
 					break;
 				}
 			} catch (IllegalArgumentException e) {
-				System.out.println("\n[Error] Argument error: " + e.getMessage() + "\n");
+				System.out.println("Argument error: " + e.getMessage() + "\n");
 			} catch (DateTimeParseException e) {
-				System.out.println("\n[Error] Date format mismatch. Use dd-MM-yyyy HH:mm layout.\n");
+				System.out.println("Date format mismatch. Use dd-MM-yyyy HH:mm layout.\n");
 			} catch (Exception e) {
-				System.out.println("\n[Error] System issue: " + e.getMessage());
+				System.out.println("System issue: " + e.getMessage());
 			}
 		}
 		scanner.close();
 
+	}
+
+	private static void recommendationSlotsBaedOnSymptom(Scanner scanner, RecommendationEngine recommendationEngine) {
+		System.out.print("Enter symptom: ");
+		String symptom = scanner.nextLine().trim();
+		recommendationEngine.recommendAndSuggestSlots(symptom);
 	}
 
 	private static void doctorDynamicSearch(Scanner scanner, Searchable searchService) {
@@ -137,9 +150,9 @@ public class Main {
 	private static void loadData(String[] args) {
 		if (args.length > 0) {
 			if (args[0].equals(Constants.LOAD_DATA)) {
-				CSVUtil.readDoctorsFromCsv("src\\csv\\doctors.csv");
-				CSVUtil.loadPatientsFromCsv("src\\csv\\patients.csv");
-				CSVUtil.loadSlotsFromCsv("src\\csv\\slots.csv");
+				CSVUtil.readDoctorsFromCsv(Constants.DOCTORS_CSV_FILE);
+				CSVUtil.loadPatientsFromCsv(Constants.PATIENTS_CSV_FILE);
+				CSVUtil.loadSlotsFromCsv(Constants.SLOTS_CSV_FILE);
 			}
 		}
 	}
@@ -149,16 +162,18 @@ public class Main {
 		String patientId = scanner.nextLine().trim();
 		System.out.print("Enter appointmentId: ");
 		String appointmentId = scanner.nextLine().trim();
+		System.out.print("select billing strategy: ");
+		String billStrategy = scanner.nextLine().trim();
 		Appointment appointment = appsService.bookAppointment(appointmentId, patientId);
 		if(null != appointment) {
 			if(appointment.getStatus()==AppointmentStatus.PENDING) {
-				BillingStrategy strategy = BillingStrategyFactory.getBillingStrategy("discounted");
+				BillingStrategy strategy = BillingStrategyFactory.getBillingStrategy(billStrategy);
 				BillUtility billUtility = new BillUtility(strategy);
 				double amountToBePaid = billUtility.executeStrategy(appointment.getDoctor().getConsultationAmount());
 				System.out.println("please proceed for the payment of " + amountToBePaid);
 				System.out.println("select the payment type UPI/Credit Card/Insurance: ");
 				String paymentType = scanner.nextLine().trim();
-				billUtility.processPaymentAndgenerateBill(paymentType, amountToBePaid, appointment);
+				billUtility.processPaymentAndgenerateBill(billStrategy, paymentType, amountToBePaid, appointment);
 		}
 	}
 	}
@@ -187,7 +202,6 @@ public class Main {
 		System.out.print("Enter patientId: ");
 		String patientId = scanner.nextLine().trim();
 		patientService.deletePatient(patientId);
-		System.out.println("patient removed successfully: " + patientId);
 	}
 
 	private static void getPatient(Scanner scanner, PatientService patientService) {
@@ -282,52 +296,61 @@ public class Main {
 		System.out.print("Enter patientId: ");
 		String patientId = scanner.nextLine().trim();
 		Patient patient = patientService.getPatient(patientId);
+		if (patient == null) {
+			return;
+		}
 		System.out.print("Enter name: ");
-		String name = scanner.nextLine().trim().isEmpty()? scanner.nextLine().trim():patient.getName();
+		String name = scanner.nextLine().trim();
 		System.out.print("Enter email: ");
-		String email =scanner.nextLine().trim().isEmpty()? scanner.nextLine().trim():patient.getEmail();
+		String email = scanner.nextLine().trim();
 		System.out.print("Enter gender: ");
-		String gender =scanner.nextLine().trim().isEmpty()? scanner.nextLine().trim():patient.getGender();
+		String gender = scanner.nextLine();
 		System.out.print("Enter age: ");
-		int age =Integer.parseInt(scanner.nextLine().trim());
+		int age = Integer.parseInt(scanner.nextLine().trim());
 		System.out.print("Enter mobile: ");
-		String mobileNo = scanner.nextLine().trim().isEmpty()? scanner.nextLine().trim():patient.getPhoneNo();
+		String mobileNo = scanner.nextLine().trim();
 		System.out.print("Enter insurance provider: ");
-		String insurancePorvider = scanner.nextLine().trim().isEmpty()? scanner.nextLine().trim():patient.getInsuranceProvider();
+		String insurancePorvider = scanner.nextLine().trim();
 		System.out.print("Enter alertType (SMS/EMAIL): ");
-		String alertTypeStr = scanner.nextLine().trim().toUpperCase() != null? scanner.nextLine().trim().toUpperCase():patient.getNotificationType().toString();
+		String alertTypeStr = scanner.nextLine().trim().toUpperCase();
+		patient.setAge(age);
+		patient.setName(name);
+		patient.setEmail(email);
+		patient.setGender(gender);
+		patient.setAge(age);
+		patient.setPhoneNo(mobileNo);
+		patient.setInsuranceProvider(insurancePorvider);
+		patient.setNotificationType(NotifcationType.valueOf(alertTypeStr));
 
-		Patient updatedPatient = new Patient.Builder().name(name).email(email).phoneNo(mobileNo)
-				.notificationType(NotifcationType.valueOf(alertTypeStr)).age(age).gender(gender)
-				.insuranceProvider(insurancePorvider).build();
-
-		patientService.updatePatient(updatedPatient);
+		patientService.updatePatient(patient);
 	}
 	
 	private static void updateDoctor(Scanner scanner, DoctorService doctorService) {
 		System.out.print("Enter doctrId: ");
 		String doctorId = scanner.nextLine().trim();
 		Doctor doctor = doctorService.getDoctor(doctorId);
+		if (doctor == null) {
+			return;
+		}
 		System.out.print("Enter name: ");
-		String name = scanner.nextLine().trim().isEmpty() ? scanner.nextLine().trim() : doctor.getName();
+		String name = scanner.nextLine().trim();
 		System.out.print("Enter email: ");
-		String email = scanner.nextLine().trim().isEmpty() ? scanner.nextLine().trim() : doctor.getEmail();
+		String email = scanner.nextLine().trim();
 		System.out.print("Enter gender: ");
-		String gender = scanner.nextLine().trim().isEmpty() ? scanner.nextLine().trim() : doctor.getGender();
+		String gender = scanner.nextLine().trim();;
 		System.out.print("Enter age: ");
 		int age = Integer.parseInt(scanner.nextLine().trim());
 		System.out.print("Enter Years of exp: ");
 		int exp = Integer.parseInt(scanner.nextLine().trim());
 		System.out.print("Enter mobile: ");
-		String mobileNo = scanner.nextLine().trim().isEmpty() ? scanner.nextLine().trim() : doctor.getPhoneNo();
+		String mobileNo = scanner.nextLine().trim();
 		System.out.print("Enter alertType (SMS/EMAIL): ");
-		String alertTypeStr = scanner.nextLine().trim().toUpperCase() != null ? scanner.nextLine().trim().toUpperCase()
-				: doctor.getNotificationType().toString();
-
+		String alertTypeStr = scanner.nextLine().trim().toUpperCase();
+		System.out.print("Enter specialization: ");
+		String specialization = scanner.nextLine().trim().toUpperCase();
 		Doctor updatedDoctor = new Doctor.Builder().name(name).email(email).phoneNo(mobileNo)
-				.notificationType(NotifcationType.valueOf(alertTypeStr)).age(age).gender(gender).yearsOfExperience(exp)
-				.build();
-
+				.notificationType(NotifcationType.valueOf(alertTypeStr)).age(age).gender(gender)
+				.specialization(Specialization.valueOf(specialization)).id(doctorId).yearsOfExperience(exp).build();
 		doctorService.updateDoctor(updatedDoctor);
 	}
 }

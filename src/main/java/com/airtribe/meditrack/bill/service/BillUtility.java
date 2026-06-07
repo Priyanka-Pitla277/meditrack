@@ -1,5 +1,6 @@
 package com.airtribe.meditrack.bill.service;
 
+import com.airtribe.meditrack.constants.Constants;
 import com.airtribe.meditrack.entity.Appointment;
 import com.airtribe.meditrack.entity.Bill;
 import com.airtribe.meditrack.enums.AppointmentStatus;
@@ -9,8 +10,7 @@ import com.airtribe.meditrack.repository.InvoiceRepository;
 import com.airtribe.meditrack.util.InvoiceGenerator;
 
 public class BillUtility {
-	private static final String UPI = "UPI";
-	private static final String PAID = "PAID";
+	
 	private BillingStrategy strategy;
 
 	public BillUtility(BillingStrategy strategy) {
@@ -25,10 +25,12 @@ public class BillUtility {
 		return strategy.calculateBill(baseAmount);
 	}
 
-	public void processPaymentAndgenerateBill(String paymentType, double amount, Appointment apt) {
+	public void processPaymentAndgenerateBill(String strategy, String paymentType, double amount, Appointment apt) {
 		if (processPayment(paymentType, amount)) {
+			double discountAmount = strategy.equalsIgnoreCase("discounted")?Constants.DISCOUNT:0.0;
+			double taxAmount = strategy.equalsIgnoreCase("standard")?Constants.TAX_AMOUNT:0.0;
 			apt.setStatus(AppointmentStatus.CONFIRMED);
-			Bill bill = generateBill(paymentType, amount, apt);
+			BillSummary bill = generateBill(paymentType, amount, apt, discountAmount,taxAmount);
 			notifyUser(apt, bill);
 			saveInvoice(bill);
 		} else {
@@ -43,15 +45,16 @@ public class BillUtility {
 		return paymentStrategy.processPayment(amount);
 	}
 	
-	public Bill generateBill(String paymentType, double amount, Appointment appointment) {
-		// generateBill
-		return new Bill.Builder().appointment(appointment).consultationFee(appointment.getDoctor().getConsultationAmount())
-				.invoiceNumber(InvoiceGenerator.generateInvoiceNumber()).surchargeAmount(0).taxAmount(0)
-				.status(PAID).paymentMethod(UPI).build();
+	public BillSummary generateBill(String paymentType, double amount, Appointment appointment, double discountAmount, double taxAmount) {
+		Bill bill = new Bill.Builder().appointment(appointment).netAmount(amount)
+				.consultationFee(appointment.getDoctor().getConsultationAmount())
+				.invoiceNumber(InvoiceGenerator.generateInvoiceNumber()).discountAmount(discountAmount).taxAmount(taxAmount).status("PAID")
+				.paymentMethod(paymentType).build();
+		return new BillSummary(InvoiceGenerator.generateInvoiceNumber(), appointment, bill);
 
 	}
 
-	private void notifyUser(Appointment appointment, Bill bill) {
+	private void notifyUser(Appointment appointment, BillSummary bill) {
 		// Notification(observer)
 		NotificationSystem notificationSystem = NotificationSystemFactory
 				.getNotificationSystem(appointment.getPatient().getNotificationType());
@@ -59,11 +62,11 @@ public class BillUtility {
 		System.out.println(bill);
 	}
 	
-	public void saveInvoice(Bill bill) {
+	public void saveInvoice(BillSummary bill) {
 		  new InvoiceRepository().saveInvoice(bill);
 	}
 	
-	public Bill getInvoice(String invoiceNumber) {
+	public BillSummary getInvoice(String invoiceNumber) {
 		return new InvoiceRepository().getInvoice(invoiceNumber);
 	}
 	

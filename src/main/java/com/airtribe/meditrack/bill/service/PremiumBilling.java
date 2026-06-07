@@ -1,7 +1,9 @@
 package com.airtribe.meditrack.bill.service;
 
+import com.airtribe.meditrack.constants.Constants;
+
 public class PremiumBilling implements BillingStrategy {
     public double calculateBill(double baseAmount) {
-        return baseAmount * 0.9; // 10% discount
+        return baseAmount * Constants.PREMIUM;
     }
 }

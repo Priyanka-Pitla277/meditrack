@@ -23,8 +23,8 @@ public class DoctorRepository {
         return doctorStore.getAllItems();
     }
     
-    public void updateDoctor(String id, Doctor updatedDoctor) {
-    	doctorStore.update(id, updatedDoctor);
+    public Doctor updateDoctor(String id, Doctor updatedDoctor) {
+    	return doctorStore.update(id, updatedDoctor);
     }
 
     public void removeDoctor(String id) {

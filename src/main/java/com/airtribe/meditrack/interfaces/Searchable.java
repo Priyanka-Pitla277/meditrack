@@ -8,5 +8,10 @@ import com.airtribe.meditrack.util.DoctorSearchCriteria;
 public interface Searchable {
 
 	public List<Doctor> searchDoctors(DoctorSearchCriteria criteria);
+	
+	public default void startSearch()
+	{
+		System.out.println("starting search");
+	}
 
 }

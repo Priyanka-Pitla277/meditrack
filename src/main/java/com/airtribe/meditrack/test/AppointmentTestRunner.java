@@ -9,12 +9,13 @@ import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.Patient;
 import com.airtribe.meditrack.enums.Specialization;
 import com.airtribe.meditrack.exception.InvalidDataException;
+import com.airtribe.meditrack.search.service.DoctorDynamicSearchService;
 import com.airtribe.meditrack.service.AppointmentManagerService;
 import com.airtribe.meditrack.service.DoctorService;
 import com.airtribe.meditrack.service.PatientService;
 import com.airtribe.meditrack.util.DoctorSearchCriteria;
 
-public class TestRunner {
+public class AppointmentTestRunner {
 
     // Common formatter to parse our manual console date-times securely
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -28,6 +29,7 @@ public class TestRunner {
         DoctorService doctorService = new DoctorService();
         PatientService patientService = new PatientService();
         AppointmentManagerService appointmentService = new AppointmentManagerService();
+        DoctorDynamicSearchService searchService = new DoctorDynamicSearchService();
 
         // -------------------------------------------------------------
         // TEST 1: Doctor & Patient CRUD Data Ingestion
@@ -116,7 +118,7 @@ public class TestRunner {
         criteria.setMinExperience(10);
         criteria.setMaxConsultationFee(200.0);
 
-        List<Doctor> searchResults = appointmentService.searchDoctors(criteria);
+        List<Doctor> searchResults = searchService.searchDoctors(criteria);
         System.out.println("Search Results matching name 'Sarah', min 10 yrs exp, fee <= 200:");
         for (Doctor d : searchResults) {
             System.out.printf(" -> Found: %s | Exp: %d yrs | Fee: $%.2f%n", d.getName(), d.getYearsOfExperience(), d.getConsultationAmount());

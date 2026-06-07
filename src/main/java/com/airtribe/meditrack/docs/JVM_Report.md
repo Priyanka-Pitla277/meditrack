@@ -8,7 +8,6 @@ This report provides a deep technical dive into the **Java Virtual Machine (JVM)
 
 The Class Loader Subsystem is responsible for locating, loading, and initializing Java class files (`.class`) during runtime. It does not load all classes at startup; instead, it loads them dynamically as they are referenced by the application.
 
-[ Compile Time ]                  [ Runtime (JVM) ]
    
     +------------+                    +------------------+
     |  Source    |                    |   Class Loader   |
@@ -138,8 +137,8 @@ for (int i = 0; i < 10000; i++) {
            ├─────────────────────────┼─────────────────────────┐
            ▼                         ▼                         ▼
 
-[ Windows Environment ]    [ macOS Environment ]     [ Linux Environment ]
-  JVM for Windows            JVM for macOS             JVM for Linux
+    [Windows Environment ]     [ macOS Environment ]     [ Linux Environment ]
+  JVM for Windows              JVM for macOS               JVM for Linux
            │                         │                         │
            ▼ (Native Code)           ▼ (Native Code)           ▼ (Native Code)
   Windows OS Execution      macOS OS Execution        Linux OS Execution

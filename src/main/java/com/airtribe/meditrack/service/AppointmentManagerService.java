@@ -1,7 +1,6 @@
 package com.airtribe.meditrack.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,67 +9,56 @@ import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.Patient;
 import com.airtribe.meditrack.enums.AppointmentStatus;
 import com.airtribe.meditrack.enums.Specialization;
+import com.airtribe.meditrack.exception.AppointmentNotFoundException;
 import com.airtribe.meditrack.exception.InvalidDataException;
+import com.airtribe.meditrack.repository.AppointmentRepository;
 import com.airtribe.meditrack.repository.DoctorRepository;
 import com.airtribe.meditrack.repository.PatientRepository;
-import com.airtribe.meditrack.util.DoctorSearchCriteria;
 import com.airtribe.meditrack.util.Validator;
 
 public class AppointmentManagerService {
 
-    private final static List<Appointment> appointments = new ArrayList<>();
+//    private final static List<Appointment> appointments = new ArrayList<>();
 	DoctorRepository doctorRepository = new DoctorRepository();
 	PatientRepository patientRepository = new PatientRepository();
-
+	AppointmentRepository appointmentRepository = new AppointmentRepository();
 
 
     // Generates an empty calendar checkup slot for a specific doctor
-    public void createScheduleSlot(String doctorId, LocalDateTime time) {
-        Doctor doc = doctorRepository.getDoctor(doctorId);
-        
-        if (doc == null) {
-        	Validator.noDataFound("no data for doctor: "+doctorId);
-        	return;
-        }
-        appointments.add(new Appointment(doc, time,AppointmentStatus.AVAILABLE));
-    }
+	public void createScheduleSlot(String doctorId, LocalDateTime time) {
+		Doctor doctor = doctorRepository.getDoctor(doctorId);
+		if (doctor == null) {
+			Validator.noDataFound("no data found for doctor: " + doctorId);
+			return;
+		}
+		appointmentRepository.createAppointmentSlot(doctor, time);
+		System.out.println("appointment slot added successfully");
+	}
     
     
     public void addSlot(Appointment appointment) {
-        appointments.add(appointment);
+    	appointmentRepository.addSlot(appointment);
     }
     
     public Appointment getAppointment(String appointmentId) {
+    	List<Appointment> appointments = appointmentRepository.getAppointments();
         for (Appointment apt : appointments) {
             if (apt.getAppointmentId().equals(appointmentId)) {
             	System.out.println(apt);
                 return apt;
             }
         }
-       Validator.noAppointmentFound("No appoint found for: "+appointmentId);
+       Validator.noAppointmentFound(new AppointmentNotFoundException("No appointment found for: "+appointmentId));
 	   return null;
     }
 
-//    // Search Strategy: Find open slots filterable by specialization
+    // Search Strategy: Find open slots filterable by specialization
     public List<Appointment> getAvailableSlotsBySpecialization(Specialization spec) {   
-        System.out.println("\n--- Current available Sessions ---");
-
-        for (Appointment apt : appointments) {
-            if (apt.getStatus() == AppointmentStatus.AVAILABLE) {
-                System.out.printf("ID: %s | Doctor: %s (%s) | Time: %s | Amount: %f%n",
-                        apt.getAppointmentId(), apt.getDoctor().getName(), 
-                        apt.getDoctor().getSpecialization(), 
-                        apt.getAppointmentDateTime(), apt.getDoctor().getConsultationAmount());
-            }
-        }
-        return appointments.stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.AVAILABLE)
-                .filter(a -> a.getDoctor().getSpecialization() == spec)
-                .collect(Collectors.toList());
+    	return appointmentRepository.getAppointmentsSlotsBySpecialization(spec);
     }
     
     public List<Appointment> getAvailableSlotsByDoctor(String name) {       
-        System.out.println("\n--- Available Slots By Doctor ---");
+    	List<Appointment> appointments = appointmentRepository.getAppointmentsSlotsByDoctor(name);       
         for (Appointment apt : appointments) {
             if (apt.getStatus() == AppointmentStatus.AVAILABLE && apt.getDoctor().getName().contains(name)) {
                 System.out.println(apt);
@@ -83,10 +71,9 @@ public class AppointmentManagerService {
     }
     
 	public List<Appointment> getAllAvailableSlots() {
-		List<Appointment> appointmentsAvaialble = appointments.stream().filter(a -> (a.getStatus() == AppointmentStatus.AVAILABLE))
-				.collect(Collectors.toList());
-		System.out.println(appointmentsAvaialble);
-		return appointmentsAvaialble;
+		List<Appointment> appointments = appointmentRepository.getAvailableSlots();
+		System.out.println(appointments);
+		return appointments;
 	}
         
 
@@ -94,7 +81,7 @@ public class AppointmentManagerService {
 	public Appointment bookAppointment(String appointmentId, String patientId) {
 		Patient patient = null;
 		try {
-			 patient = patientRepository.findPatient(patientId);
+			patient = patientRepository.findPatient(patientId);
 			if (patient == null) {
 				throw new InvalidDataException("Invalid Patient Records.");
 			}
@@ -102,22 +89,21 @@ public class AppointmentManagerService {
 			Validator.invalidData(e);
 			return null;
 		}
+
+		List<Appointment> appointments = appointmentRepository.getAvailableSlots();
 		for (Appointment apt : appointments) {
 			if (apt.getAppointmentId().equals(appointmentId)) {
-				if (apt.getStatus() == AppointmentStatus.AVAILABLE) {
-					// payment
-					apt.setPatient(patient);
-					apt.setStatus(AppointmentStatus.PENDING);
-					return apt;
-				}
+				apt.setPatient(patient);
+				apt.setStatus(AppointmentStatus.PENDING);
+				return apt;
 			}
 		}
 		System.out.println("appointment not available");
 		return null;
 	}
-//
+
     public void displayScheduledAppointments() {
-        System.out.println("\n--- Current Scheduled Sessions ---");
+    	List<Appointment> appointments =  appointmentRepository.getScheduledAppointments();
         for (Appointment apt : appointments) {
             if (apt.getStatus() == AppointmentStatus.CONFIRMED) {
                 System.out.printf("ID: %s | Doctor: %s (%s) | Patient: %s | Time: %s%n",
@@ -128,47 +114,14 @@ public class AppointmentManagerService {
         }
     }
     
-    public void cancelAppointment(String appointmentId) {
-        for (Appointment apt : appointments) {
-            if (apt.getAppointmentId().equals(appointmentId) && apt.getStatus()==AppointmentStatus.CONFIRMED) {
-            	apt.setStatus(AppointmentStatus.CANCELLED);
-            	System.out.println("refund cannot be processed for the cancellation");
-            	appointments.remove(apt);
-            	System.out.println("appointment cancelled");
-            	break;
-            }
-        }
-    }
-    
-    
-	public List<Doctor> searchDoctors(DoctorSearchCriteria criteria) {
-		return doctorRepository.getDoctors().stream().filter(doc -> {
-			// 1. Dynamic Name Check
-			if (criteria.getName() != null && !criteria.getName().trim().isEmpty()) {
-				if (!doc.getName().toLowerCase().contains(criteria.getName().toLowerCase().trim())) {
-					return false;
-				}
+	public void cancelAppointment(String appointmentId) {
+		try {
+			if (appointmentRepository.cancelAppointment(appointmentId)) {
+				System.out.println("refund cannot be processed for the cancellation");
+				System.out.println("appointment cancelled");
 			}
-			// 2. Dynamic Specialization Check
-			if (criteria.getSpecialization() != null && !criteria.getSpecialization().trim().isEmpty()) {
-				if (!doc.getSpecialization().toString().toLowerCase()
-						.equalsIgnoreCase(criteria.getSpecialization().toLowerCase().trim())) {
-					return false;
-				}
-			}
-			// 3. Dynamic Experience Check
-			if (criteria.getMinExperience() != null) {
-				if (doc.getYearsOfExperience() < criteria.getMinExperience()) {
-					return false;
-				}
-			}
-			// 4. Dynamic Budget/Fee Check
-			if (criteria.getMaxConsultationFee() != null) {
-				if (doc.getConsultationAmount() > criteria.getMaxConsultationFee()) {
-					return false;
-				}
-			}
-			return true; // Match found if it passes all active checks
-		}).collect(Collectors.toList());
+		} catch (AppointmentNotFoundException e) {
+			Validator.noAppointmentFound(e);
+		}
 	}
 }

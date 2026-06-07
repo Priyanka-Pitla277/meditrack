@@ -13,6 +13,7 @@ public class PatientService {
 
 	public void createPatient(Patient patient) {
 		repository.addPatient(patient);
+		System.out.println("patient data added successfully: " + patient.getId());
 	}
 
 	public Patient getPatient(String patientId) {

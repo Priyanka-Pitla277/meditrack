@@ -26,8 +26,9 @@ public class DataStore<T> {
 		}
 	}
 
-	public void update(String id, T newItem) {
-		items.put(id, newItem);
+	public T update(String id, T newItem) {
+		return items.put(id, newItem);
+
 	}
 
 	public void remove(String id) {

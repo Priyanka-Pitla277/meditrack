@@ -33,7 +33,7 @@ public class DoctorService {
 
 	public void updateDoctor(Doctor doctor) {
 		repository.updateDoctor(doctor.getId(), doctor);
-
+		System.out.println("updated doctor details:" + doctor);
 	}
 
 	public void deleteDoctor(String doctorId) {

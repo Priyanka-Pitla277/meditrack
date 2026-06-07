@@ -184,7 +184,23 @@ meditrack-project/
 -   **Expected Result:** The engine performs a case-insensitive search and outputs a list containing `Dr. Sarah Smith` as an exact structural match.
     
 
-### Test Case 7: Graceful Termination
+### Test Case 7: AI based available slot suggestions based on patient symptom
+
+-   **Objective:** Verify text search of symptom is giving the suggested slots for appointment booking
+    
+-   **Steps:**
+    
+    1.  Select Option: `17` (recommended Slots based On Symptom)
+        
+    2.  Input search dimensions when prompted:
+        
+        -   _Enter symptom:_ `chest pain`
+
+        
+-   **Expected Result:** The application exits the running loop immediately and displays the suggested slots available to book appointment with option 13
+
+
+### Test Case 8: Graceful Termination
 
 -   **Objective:** Verify clean resource cleanup and terminal loop termination.
     
@@ -192,4 +208,4 @@ meditrack-project/
     
     1.  Select Option: `0` (Exit)
         
--   **Expected Result:** The application exits the running loop immediately and displays the message: `Exiting the interactive menu window.`
+-   **Expected Result:** The application exits the running loop immediately and displays the message: `Exiting the interactive menu window.

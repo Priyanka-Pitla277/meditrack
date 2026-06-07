@@ -12,7 +12,7 @@ public class Patient extends Person implements Cloneable  {
         this.medicalHistory = builder.medicalHistory;
         this.insuranceProvider = builder.insuranceProvider;
     }
-
+    
 
 	// Getters and Setters
     public String getMedicalHistory() { return medicalHistory; }
