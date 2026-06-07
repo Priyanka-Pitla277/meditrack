@@ -1,6 +1,6 @@
 package com.airtribe.meditrack.exception;
 
-public class AppointmentNotFoundException extends RuntimeException {
+public class InvalidDataException extends RuntimeException {
 
 	// 1. Unique serial version ID for serialization safety
 
@@ -10,17 +10,17 @@ public class AppointmentNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	// 2. Default constructor
-	public AppointmentNotFoundException() {
+	public InvalidDataException() {
 		super();
 	}
 
 	// 3. Constructor that accepts a custom error message (Most Common)
-	public AppointmentNotFoundException(String message) {
+	public InvalidDataException(String message) {
 		super(message);
 	}
 
 	// 4. Constructor that accepts a custom message AND another root cause exception
-	public AppointmentNotFoundException(String message, Throwable cause) {
+	public InvalidDataException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

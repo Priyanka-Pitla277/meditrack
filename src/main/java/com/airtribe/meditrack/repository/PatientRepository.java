@@ -10,7 +10,6 @@ public class PatientRepository {
 
     public void addPatient(Patient patient) {
         patientStore.add(patient.getId(), patient);
-        System.out.println("patient added successfully:" +patient.getId());
     }
 
     public Patient findPatient(String id) {

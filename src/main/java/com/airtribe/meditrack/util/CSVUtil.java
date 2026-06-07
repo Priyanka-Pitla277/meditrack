@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,8 +142,14 @@ public class CSVUtil {
 						String doctorId = tokens[0].trim();
 						String rawDateTime = tokens[1].trim();
 
+						
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+						LocalDateTime slotTime = LocalDateTime.parse(rawDateTime, formatter);
+						
+						
 						// 3. Convert String text into executable LocalDateTime object
-						LocalDateTime slotTime = LocalDateTime.parse(rawDateTime);
+//						LocalDateTime slotTime = LocalDateTime.parse(rawDateTime);
 						// If using custom pattern: LocalDateTime.parse(rawDateTime, formatter);
 
 						// 4. Register the generated slot directly with the target Doctor

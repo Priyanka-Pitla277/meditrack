@@ -60,14 +60,16 @@ public class Doctor extends Person implements Cloneable{
 
 	@Override
 	public String toString() {
-	    return "User Profile Details\n" +
-	           "------------------------------------------\n" +
-	           "User ID           : " + getId() + "\n" +
-	           "Full Name         : " + getName() + "\n" +
-	           "Age               : " + getAge() + " years\n" +
-	           "Gender            : " + getGender() + "\n" +
-	           "Email Address     : " + getEmail() + "\n" +
-	           "Phone Number      : " + getPhoneNo() + "\n" +
+	    return "------------------------------------------\n" +
+	           "ID                 : " + getId() + "\n" +
+	           "Full Name          : " + getName() + "\n" +
+	           "Age                : " + getAge() + " years\n" +
+	           "Gender             : " + getGender() + "\n" +
+	           "Email Address      : " + getEmail() + "\n" +
+	           "Phone Number       : " + getPhoneNo() + "\n" +
+	           "specialization     : " + getSpecialization() + "\n" +
+	           "experience         : " + getYearsOfExperience() + "\n" +
+	           "consultation amount: " + getConsultationAmount() + "\n" +
 	           "Notification Pref : " + (getNotificationType() != null ? getNotificationType() : "Not Configured") + "\n" +
 	           "------------------------------------------";
 	}

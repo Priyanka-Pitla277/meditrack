@@ -63,7 +63,7 @@ public class Appointment implements Cloneable{
 	@Override
 	public String toString() {
 	    return "\n==========================================\n" +
-	           "         APPOINTMENT DETAILS              \n" +
+	           "         APPOINTMENT SLOT DETAILS              \n" +
 	           "==========================================\n" +
 	           "Appointment ID : " + appointmentId + "\n" +
 	           "Date & Time    : " + appointmentDateTime + "\n" +

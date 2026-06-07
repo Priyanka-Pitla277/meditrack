@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.airtribe.meditrack.exception.InvalidDataException;
+
 public class DataStore<T> {
 	private Map<String, T> items = new HashMap<>();
 
@@ -17,7 +19,11 @@ public class DataStore<T> {
 	}
 
 	public T get(String id) {
-		return items.get(id);
+		if (null != items.get(id)) {
+			return items.get(id);
+		} else {
+			throw new InvalidDataException("No data found for " + id);
+		}
 	}
 
 	public void update(String id, T newItem) {
@@ -25,6 +31,9 @@ public class DataStore<T> {
 	}
 
 	public void remove(String id) {
-		items.remove(id);
+		if (null == items.remove(id)) {
+			throw new InvalidDataException("No data found for " + id);
+		}
+		System.out.println("removed data for " + id);
 	}
 }

@@ -13,16 +13,16 @@ public class Patient extends Person implements Cloneable  {
         this.insuranceProvider = builder.insuranceProvider;
     }
 
-    // Getters and Setters
+
+	// Getters and Setters
     public String getMedicalHistory() { return medicalHistory; }
     public void setMedicalHistory(String medicalHistory) { this.medicalHistory = medicalHistory; }
     public String getInsuranceProvider() { return insuranceProvider; }
     public void setInsuranceProvider(String insuranceProvider) { this.insuranceProvider = insuranceProvider; }
 
     @Override
-    public String toString() {
-        return "Patient Profile\n" +
-               "------------------------------------------\n" +
+    public String toString() { 
+        return "------------------------------------------\n" +
                "Patient ID         : " + getId() + "\n" +
                "Name               : " + getName() + "\n" +
                "Age                : " + getAge() + "\n" +
