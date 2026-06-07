@@ -45,6 +45,8 @@ meditrack-project/
 ### Test Case 1: Onboard a New Doctor Profile
 
 -   **Objective:** Verify that a doctor can be registered with specific parameters and that an auto-generated unique ID is assigned.
+
+### - **pass command line argument as --loadData to load data provided in csv files for doctors, patients and appointments available in docs folder**
     
 -   **Steps:**
     
