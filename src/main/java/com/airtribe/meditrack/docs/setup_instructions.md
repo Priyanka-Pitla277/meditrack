@@ -18,6 +18,64 @@ public class HelloWorld {
     }
 }
 ```
+uml.png
+```
+  title MediTrack Medical Appointment System
+
+  doctors [icon: user-check, color: blue] {
+    id string pk
+    name string
+    age int
+    gender string
+    email string
+    phoneNo string
+    notificationType string
+    specialization string
+    yearsOfExperience int
+    licenseNumber string
+    consultationAmount double
+  }
+
+  patients [icon: user, color: green] {
+    id string pk
+    name string
+    age int
+    gender string
+    email string
+    phoneNo string
+    notificationType string
+    medicalHistory string
+    insuranceProvider string
+  }
+
+  appointments [icon: calendar, color: orange] {
+    appointmentId string pk
+    patientId string fk
+    doctorId string fk
+    appointmentDateTime timestamp
+    status string
+  }
+
+  bills [icon: credit-card, color: purple] {
+    invoiceNumber string pk
+    appointmentId string fk
+    consultationFee double
+    taxAmount double
+    surchargeAmount double
+    discountAmount double
+    netAmount double
+    paymentMethod string
+    status string
+    issuedAt timestamp
+  }
+
+  // Relationships
+  appointments.doctorId > doctors.id
+  appointments.patientId > patients.id
+  bills.appointmentId - appointments.appointmentId
+  ```
+  
+
 # MediTrack Interactive Menu — Comprehensive Test Execution Guide
 
 This document provides a step-by-step test script to validate the console-driven user interface and business logic of the **MediTrack** application.
